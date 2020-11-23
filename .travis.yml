@@ -1,0 +1,42 @@
+language: c
+dist: xenial
+
+notifications:
+  email: false
+
+# ===== Linux ======
+compiler: gcc
+
+env:
+  # - COMPILER_VERSION=4.9
+  # - COMPILER_VERSION=5
+  # - COMPILER_VERSION=6
+  # - COMPILER_VERSION=7
+  # - COMPILER_VERSION=8
+  - COMPILER_VERSION=9
+
+arch:
+  - amd64
+  # - arm64
+
+before_install:
+  - sudo add-apt-repository -y multiverse
+  - sudo add-apt-repository -y universe
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update
+  - eval "CC=gcc-${COMPILER_VERSION} && CXX=g++-${COMPILER_VERSION}"
+
+install:
+  - sudo apt install -y g++-${COMPILER_VERSION} \
+      libnfc-dev
+
+before_script:
+  - autoreconf -vis
+  - ./configure
+  - make
+
+after_failure:
+  - cat config.log
+
+script:
+  - ./mfoc-hardnested -h
