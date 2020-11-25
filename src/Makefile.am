@@ -9,31 +9,28 @@ mfoc_hardnested_LDADD   = @libnfc_LIBS@ $(SIMD)
 
 dist_man_MANS = mfoc-hardnested.1
 
+HARD_SWITCH_NOSIMD = -mno-mmx -mno-sse2 -mno-avx -mno-avx2 -mno-avx512f
 HARD_SWITCH_SSE2 = -mmmx -msse2 -mno-avx -mno-avx2 -mno-avx512f
 HARD_SWITCH_AVX = -mmmx -msse2 -mavx -mno-avx2 -mno-avx512f
 HARD_SWITCH_AVX2 = -mmmx -msse2 -mavx -mavx2 -mno-avx512f
 HARD_SWITCH_AVX512 = -mmmx -msse2 -mavx -mavx2 -mavx512f
 
-if X86_SIMD
 
-  SIMD = hardnested/hardnested_bf_core_SSE2.o hardnested/hardnested_bf_core_AVX.o hardnested/hardnested_bf_core_AVX2.o hardnested/hardnested_bf_core_AVX512.o hardnested/hardnested_bitarray_core_SSE2.o hardnested/hardnested_bitarray_core_AVX.o hardnested/hardnested_bitarray_core_AVX2.o hardnested/hardnested_bitarray_core_AVX512.o
-  
-  hardnested/%_SSE2.o : hardnested/%_SSE2.c
+SIMD = hardnested/hardnested_bf_core_NOSIMD.o hardnested/hardnested_bitarray_core_NOSIMD.o \
+        hardnested/hardnested_bf_core_SSE2.o hardnested/hardnested_bf_core_AVX.o hardnested/hardnested_bf_core_AVX2.o hardnested/hardnested_bf_core_AVX512.o hardnested/hardnested_bitarray_core_SSE2.o hardnested/hardnested_bitarray_core_AVX.o hardnested/hardnested_bitarray_core_AVX2.o hardnested/hardnested_bitarray_core_AVX512.o
+
+
+hardnested/%_NOSIMD.o : hardnested/%.c
+	$(CC) $(DEPFLAGS) $(CFLAGS) $(HARD_SWITCH_NOSIMD) -c -o $@ $<
+
+hardnested/%_SSE2.o : hardnested/%.c
 	$(CC) $(DEPFLAGS) $(CFLAGS) $(HARD_SWITCH_SSE2) -c -o $@ $<
 
-  hardnested/%_AVX.o : hardnested/%_AVX.c
+hardnested/%_AVX.o : hardnested/%.c
 	$(CC) $(DEPFLAGS) $(CFLAGS) $(HARD_SWITCH_AVX) -c -o $@ $<
 
-  hardnested/%_AVX2.o : hardnested/%_AVX2.c
+hardnested/%_AVX2.o : hardnested/%.c
 	$(CC) $(DEPFLAGS) $(CFLAGS) $(HARD_SWITCH_AVX2) -c -o $@ $<
 
-  hardnested/%_AVX512.o : hardnested/%_AVX512.c
+hardnested/%_AVX512.o : hardnested/%.c
 	$(CC) $(DEPFLAGS) $(CFLAGS) $(HARD_SWITCH_AVX512) -c -o $@ $<
-
-else
-
-  SIMDOBJ = hardnested/hardnested_bf_core_NOSIMD.o hardnested/hardnested_bitarray_core_NOSIMD.o
-  hardnested/%_NOSIMD.o : hardnested/%.c
-	$(CC) $(DEPFLAGS) $(CFLAGS) -c -o $@ $<
-
-endif

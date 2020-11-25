@@ -40,24 +40,14 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memset])
 
-# x86 CPU features (without automatic gcc flags)
-AC_CANONICAL_HOST
-X86_SIMD=""
-AS_CASE([$host_cpu],
-    [x86_64],
-    [
-        X86_SIMD="true"
-    ],
-    [i?86],
-    [
-        X86_SIMD="true"
-    ],
-    [amd64],
-    [
-        X86_SIMD="true"
-    ],)
-AC_SUBST([X86_SIMD])
-AM_CONDITIONAL([X86_SIMD], [test x$X86_SIMD = xtrue])
+# Detect CPU vectors capabilities
+AX_EXT
+
+AM_CONDITIONAL(HAVE_AVX512, [test "x$ax_cv_have_avx512f_ext" = xyes])
+AM_CONDITIONAL(HAVE_AVX2, [test "x$ax_cv_have_avx2_ext" = xyes])
+AM_CONDITIONAL(HAVE_AVX, [test "x$ax_cv_have_avx_ext" = xyes])
+AM_CONDITIONAL(HAVE_SSE2, [test "x$ax_cv_have_sse2_ext" = xyes])
+
 
 # C99
 CFLAGS="$CFLAGS -DX86_SIMD -std=c99"
